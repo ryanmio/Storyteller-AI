@@ -5,8 +5,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
 
-// Set timeout to 2 minutes
-export const maxDuration = 120
+// Set timeout to 60 seconds (maximum allowed for hobby plan)
+export const maxDuration = 60
 
 export async function POST(req: Request) {
   try {
