@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server"
-import { Configuration, OpenAIApi } from "openai-edge"
-import { OpenAIStream, StreamingTextResponse } from "ai"
+import OpenAI from "openai"
 
-// Create an OpenAI API client (that's edge friendly!)
-const config = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
-const openai = new OpenAIApi(config)
 
 // Set timeout to 2 minutes
 export const maxDuration = 120
@@ -21,10 +18,8 @@ export async function POST(req: Request) {
 
     console.log("Starting story generation...")
     
-    // Ask OpenAI for a streaming completion
-    const response = await openai.createChatCompletion({
-      model: 'gpt-4',
-      stream: true,
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
       messages: [
         {
           role: "system",
@@ -35,16 +30,12 @@ export async function POST(req: Request) {
       max_tokens: 1000,
     })
 
-    // Convert the response into a friendly text-stream
-    const stream = OpenAIStream(response)
-
-    // Return a StreamingTextResponse, which can be consumed by the client
-    return new StreamingTextResponse(stream)
+    return NextResponse.json({ text: completion.choices[0].message.content })
   } catch (error) {
-    console.error("Error in story generation:", error)
-    return NextResponse.json({
-      error: "Failed to generate story",
-      message: error instanceof Error ? error.message : "An unexpected error occurred"
-    }, { status: 500 })
+    console.error("Error generating story:", error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to generate story" },
+      { status: 500 }
+    )
   }
 } 
