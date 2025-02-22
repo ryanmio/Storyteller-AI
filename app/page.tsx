@@ -123,10 +123,14 @@ function PageContent() {
     setIsGenerating(true)
     setAudioError(null)
     try {
-      // Generate story
-      const { text } = await generateText({
-        model: openai("gpt-4o"),
-        prompt: `You are an AI specialized in crafting immersive, fact-based audio stories for listeners. Your task is to generate a creative, realistic narrative based on the following topic:
+      // Generate story using our new API route
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: `You are an AI specialized in crafting immersive, fact-based audio stories for listeners. Your task is to generate a creative, realistic narrative based on the following topic:
 
 <topic>
 ${userInput}
@@ -170,7 +174,14 @@ Provide **only the final story** in the following format:
 </story>
 
 Do not include planning notes or explanations. Offer a single cohesive, creative, and gripping story told from your chosen unique viewpoint or style.`,
+        }),
       })
+
+      if (!response.ok) {
+        throw new Error(`Failed to generate story: ${response.statusText}`)
+      }
+
+      const { text } = await response.json()
 
       // Extract the story content from within the <story> tags
       const storyContent = text.match(/<story>([\s\S]*)<\/story>/)?.[1]?.trim() || text
