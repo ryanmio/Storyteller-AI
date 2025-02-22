@@ -7,8 +7,8 @@ export const maxDuration = 120
 // Configure OpenAI with timeout
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  timeout: 60000, // 60 seconds timeout for API calls
-  maxRetries: 3, // Retry failed requests up to 3 times
+  timeout: 90000, // 90 seconds timeout for API calls
+  maxRetries: 0, // No retries
 })
 
 export async function POST(req: Request) {
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     if (error instanceof Error && error.name === "AbortError") {
       return NextResponse.json({ 
         error: "Request timeout", 
-        message: "The request took too long to complete" 
+        message: "The story generation took too long. Please try again." 
       }, { status: 504 })
     }
 
