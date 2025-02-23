@@ -22,31 +22,29 @@ export async function GET(request: NextRequest) {
         <div
           style={{
             backgroundImage: `url(${baseImageUrl})`,
+            backgroundSize: '1200px 630px',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
             width: '1200px',
             height: '630px',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          <div
+          <h1
             style={{
-              width: '100%',
-              paddingTop: '40px',
+              fontSize: '56px',
+              fontWeight: 'bold',
+              color: 'white',
+              lineHeight: 1.3,
+              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+              margin: 0,
+              padding: '40px 40px 0',
               textAlign: 'center',
             }}
           >
-            <h1
-              style={{
-                fontSize: '56px',
-                fontWeight: 'bold',
-                color: 'white',
-                lineHeight: 1.3,
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                margin: 0,
-                padding: '0 40px',
-              }}
-            >
-              {title}
-            </h1>
-          </div>
+            {title}
+          </h1>
         </div>
       ),
       {
