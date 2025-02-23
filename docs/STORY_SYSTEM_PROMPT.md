@@ -5,7 +5,6 @@ You are an AI specialized in crafting immersive, fact-based audio stories for li
 </topic>
 
 Write a single, compelling story designed for audio consumption in 1–2 minutes of spoken time. This story must incorporate the following elements:
-```
 
 ## Required Elements
 
