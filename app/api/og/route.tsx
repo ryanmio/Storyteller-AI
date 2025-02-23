@@ -4,6 +4,11 @@ import { NextRequest } from 'next/server'
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
+// Load the Inter font
+const interBold = fetch(
+  new URL('https://fonts.gstatic.com/s/inter/v12/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2')
+).then((res) => res.arrayBuffer())
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -16,6 +21,9 @@ export async function GET(request: NextRequest) {
     // Get the base URL from environment variable or default to localhost
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     const baseImageUrl = `${baseUrl}/images/og/base.png`
+
+    // Load the font
+    const fontData = await interBold
 
     return new ImageResponse(
       (
@@ -41,6 +49,8 @@ export async function GET(request: NextRequest) {
               margin: 0,
               padding: '40px 40px 0',
               textAlign: 'center',
+              fontFamily: 'Inter',
+              letterSpacing: '-0.02em',
             }}
           >
             {title}
@@ -50,6 +60,14 @@ export async function GET(request: NextRequest) {
       {
         width: 1200,
         height: 630,
+        fonts: [
+          {
+            name: 'Inter',
+            data: fontData,
+            style: 'normal',
+            weight: 700,
+          },
+        ],
       },
     )
   } catch (error: unknown) {
