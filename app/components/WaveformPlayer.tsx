@@ -14,10 +14,43 @@ export function WaveformPlayer({ audioUrl }: WaveformPlayerProps) {
   const wavesurfer = useRef<WaveSurfer | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isWaveformLoaded, setIsWaveformLoaded] = useState(false)
+  const [isDestroying, setIsDestroying] = useState(false)
+
+  // Cleanup function
+  const cleanupWaveSurfer = async () => {
+    if (wavesurfer.current && !isDestroying) {
+      setIsDestroying(true)
+      try {
+        // Stop playback
+        wavesurfer.current.pause()
+        // Remove all event listeners
+        wavesurfer.current.unAll()
+        // Wait a bit to ensure any pending operations are complete
+        await new Promise(resolve => setTimeout(resolve, 100))
+        // Destroy the instance
+        if (wavesurfer.current) {
+          wavesurfer.current.destroy()
+          wavesurfer.current = null
+        }
+      } catch (error) {
+        console.log("Wavesurfer cleanup error (can safely ignore):", error)
+      } finally {
+        setIsDestroying(false)
+      }
+    }
+  }
 
   useEffect(() => {
-    if (waveformRef.current) {
-      wavesurfer.current = WaveSurfer.create({
+    let mounted = true
+
+    const initWaveSurfer = async () => {
+      // Cleanup previous instance if it exists
+      await cleanupWaveSurfer()
+
+      if (!mounted || !waveformRef.current) return
+
+      // Create new instance
+      const ws = WaveSurfer.create({
         container: waveformRef.current,
         waveColor: "violet",
         progressColor: "purple",
@@ -29,25 +62,47 @@ export function WaveformPlayer({ audioUrl }: WaveformPlayerProps) {
         barGap: 3,
       })
 
-      wavesurfer.current.load(audioUrl)
+      wavesurfer.current = ws
 
-      wavesurfer.current.on("ready", () => setIsWaveformLoaded(true))
-      wavesurfer.current.on("finish", () => setIsPlaying(false))
+      // Add event listeners
+      ws.on("ready", () => {
+        if (mounted) setIsWaveformLoaded(true)
+      })
+      ws.on("finish", () => {
+        if (mounted) setIsPlaying(false)
+      })
+      ws.on("play", () => {
+        if (mounted) setIsPlaying(true)
+      })
+      ws.on("pause", () => {
+        if (mounted) setIsPlaying(false)
+      })
 
-      return () => wavesurfer.current?.destroy()
+      // Load audio
+      try {
+        await ws.load(audioUrl)
+      } catch (error) {
+        console.log("Error loading audio:", error)
+      }
+    }
+
+    initWaveSurfer()
+
+    return () => {
+      mounted = false
+      cleanupWaveSurfer()
     }
   }, [audioUrl])
 
   const togglePlayPause = () => {
-    if (wavesurfer.current) {
+    if (wavesurfer.current && !isDestroying) {
       wavesurfer.current.playPause()
-      setIsPlaying(!isPlaying)
     }
   }
 
   return (
     <div className="flex items-center w-full gap-4">
-      <Button onClick={togglePlayPause} className="flex-shrink-0">
+      <Button onClick={togglePlayPause} className="flex-shrink-0" disabled={!isWaveformLoaded || isDestroying}>
         {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
       </Button>
       <div className="flex-grow relative h-[50px]">
