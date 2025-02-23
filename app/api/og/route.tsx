@@ -4,11 +4,6 @@ import { NextRequest } from 'next/server'
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
-// Load the Inter font
-const interBold = fetch(
-  new URL('https://fonts.gstatic.com/s/inter/v12/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2')
-).then((res) => res.arrayBuffer())
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -22,53 +17,47 @@ export async function GET(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     const baseImageUrl = `${baseUrl}/images/og/base.png`
 
-    // Load the font
-    const fontData = await interBold
-
     return new ImageResponse(
       (
         <div
           style={{
-            backgroundImage: `url(${baseImageUrl})`,
-            backgroundSize: '1200px 630px',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            width: '1200px',
             height: '630px',
+            width: '1200px',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'center', // Center vertically
+            backgroundImage: `url(${baseImageUrl})`,
+            backgroundColor: '#8B1538', // burgundy fallback
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
           }}
         >
-          <h1
+          <div
             style={{
-              fontSize: '56px',
-              fontWeight: 'bold',
-              color: 'white',
-              lineHeight: 1.3,
-              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-              margin: 0,
-              padding: '0 40px',
+              display: 'flex',
+              padding: '40px 60px',
+              maxWidth: '900px',
               textAlign: 'center',
-              fontFamily: 'Inter',
-              letterSpacing: '-0.02em',
             }}
           >
-            {title}
-          </h1>
+            <h1
+              style={{
+                fontSize: '64px',
+                fontWeight: 'bold',
+                color: 'white',
+                lineHeight: 1.2,
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+              }}
+            >
+              {title}
+            </h1>
+          </div>
         </div>
       ),
       {
         width: 1200,
         height: 630,
-        fonts: [
-          {
-            name: 'Inter',
-            data: fontData,
-            style: 'normal',
-            weight: 700,
-          },
-        ],
       },
     )
   } catch (error: unknown) {
