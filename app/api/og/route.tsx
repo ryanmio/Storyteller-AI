@@ -28,33 +28,35 @@ export async function GET(request: NextRequest) {
             alignItems: 'center',
             backgroundImage: `url(${baseImageUrl})`,
             backgroundColor: '#8B1538', // burgundy fallback
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundSize: '100% auto', // Changed to ensure full width and maintain aspect ratio
+            backgroundPosition: 'center 40%', // Adjust vertical position
+            backgroundRepeat: 'no-repeat',
             position: 'relative',
+            overflow: 'hidden', // Ensure nothing bleeds out
           }}
         >
           <div
             style={{
               position: 'absolute',
-              top: '20%', // Move title higher up
+              top: '25%', // Adjusted position
               left: '50%',
-              transform: 'translate(-50%, -50%)',
+              transform: 'translate(-50%, 0)', // Changed to not move vertically
               width: '100%',
-              padding: '40px',
+              padding: '0 40px',
               textAlign: 'center',
-              maxWidth: '90%', // Prevent text from getting too close to edges
+              maxWidth: '90%',
             }}
           >
             <h1
               style={{
-                fontSize: '60px',
+                fontSize: '56px', // Slightly smaller to ensure better fit
                 fontWeight: 'bold',
                 color: 'white',
-                lineHeight: 1.2,
+                lineHeight: 1.3,
                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
                 margin: 0,
                 padding: 0,
-                wordWrap: 'break-word', // Handle long titles better
+                wordWrap: 'break-word',
               }}
             >
               {title}
