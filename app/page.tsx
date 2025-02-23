@@ -452,7 +452,13 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
               </div>
 
               <div className="border-t border-burgundy/10 dark:border-amaranth-purple/10 pt-6">
-                <IdeaGenerator onSelectIdea={handleSelectIdea} />
+                <Suspense fallback={
+                  <div className="flex justify-center items-center h-16">
+                    <Loader2 className="h-5 w-5 animate-spin text-burgundy/50 dark:text-amaranth-purple/50" />
+                  </div>
+                }>
+                  <IdeaGenerator onSelectIdea={handleSelectIdea} />
+                </Suspense>
               </div>
 
               {story && (
@@ -578,11 +584,11 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
   )
 }
 
-const Page = () => (
-  <Suspense fallback={<div>Loading...</div>}>
-    <PageContent />
-  </Suspense>
-)
-
-export default Page
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PageContent />
+    </Suspense>
+  )
+}
 
