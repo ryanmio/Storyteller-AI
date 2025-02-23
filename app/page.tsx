@@ -31,6 +31,9 @@ const getRandomVoice = () => {
   return voices[randomIndex].id
 }
 
+// Use a consistent default voice to prevent hydration mismatch
+const DEFAULT_VOICE = voices[0].id
+
 function PageContent() {
   const searchParams = useSearchParams()
   const [userInput, setUserInput] = useState("")
@@ -53,7 +56,7 @@ function PageContent() {
     audio_file: string | null
     voice_id: string | null
   } | null>(null)
-  const [selectedVoice, setSelectedVoice] = useState(getRandomVoice())
+  const [selectedVoice, setSelectedVoice] = useState(DEFAULT_VOICE)
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "new-story")
   const [showVenmoDialog, setShowVenmoDialog] = useState(false)
   const [showCopiedTooltip, setShowCopiedTooltip] = useState(false)
