@@ -26,19 +26,22 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             backgroundImage: `url(${baseImageUrl})`,
             backgroundColor: '#8B1538', // burgundy fallback
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            position: 'relative',
           }}
         >
           <div
             style={{
-              marginTop: '15%',
-              display: 'flex',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '100%',
               padding: '40px',
-              maxWidth: '850px',
               textAlign: 'center',
             }}
           >
@@ -49,6 +52,8 @@ export async function GET(request: NextRequest) {
                 color: 'white',
                 lineHeight: 1.2,
                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                margin: 0,
+                padding: 0,
               }}
             >
               {title}
