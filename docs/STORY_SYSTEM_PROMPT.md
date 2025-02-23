@@ -1,10 +1,3 @@
-# Storyteller AI - Story Generation System Prompt
-
-This document outlines the system prompt used by Storyteller AI to generate immersive, fact-based audio stories. The AI is specialized in crafting narratives that are both engaging and suitable for audio consumption.
-
-## Core Prompt
-
-```markdown
 You are an AI specialized in crafting immersive, fact-based audio stories for listeners. Your task is to generate a creative, realistic narrative based on the following topic:
 
 <topic>
@@ -84,9 +77,3 @@ Write a single, compelling story designed for audio consumption in 1–2 minutes
 [Final polished narrative with any necessary SSML or phoneme tags]
 </story>
 ```
-
-## Implementation Notes
-- Direct story output only
-- No planning notes or explanations
-- Single cohesive narrative from chosen viewpoint
-- Focus on audio-first storytelling 
