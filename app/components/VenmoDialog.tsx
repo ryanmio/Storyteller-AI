@@ -23,7 +23,7 @@ export function VenmoDialog({ open, onOpenChange }: VenmoDialogProps) {
           <DialogTitle className="text-center">Support Storyteller AI</DialogTitle>
           <DialogDescription className="text-center">
             This text-to-speech model costs a lot! If you&apos;d like to generate more stories, please consider
-            supporting the project.
+            supporting the project. Most people are chipping in $5.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center justify-center p-4">
