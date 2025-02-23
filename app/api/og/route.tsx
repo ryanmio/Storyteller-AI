@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
             backgroundImage: `url(${baseImageUrl})`,
             backgroundColor: '#8B1538', // burgundy fallback
             backgroundSize: 'cover',
@@ -37,12 +36,13 @@ export async function GET(request: NextRequest) {
           <div
             style={{
               position: 'absolute',
-              top: '50%',
+              top: '20%', // Move title higher up
               left: '50%',
               transform: 'translate(-50%, -50%)',
               width: '100%',
               padding: '40px',
               textAlign: 'center',
+              maxWidth: '90%', // Prevent text from getting too close to edges
             }}
           >
             <h1
@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
                 margin: 0,
                 padding: 0,
+                wordWrap: 'break-word', // Handle long titles better
               }}
             >
               {title}
