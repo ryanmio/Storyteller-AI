@@ -11,15 +11,19 @@ interface IdeaGeneratorProps {
 
 export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
   const [ideas, setIdeas] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     generateIdeas()
   }, [])
 
   const generateIdeas = async (isRegenerating: boolean = false) => {
+    if (!mounted) return
+    
     setIsLoading(!isRegenerating)
     setIsRefreshing(isRegenerating)
     setError(null)
@@ -45,6 +49,14 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
   const handleRegenerateIdeas = () => {
     console.log("[IdeaGenerator] Regenerate button clicked")
     generateIdeas(true)
+  }
+
+  if (!mounted) {
+    return (
+      <div className="flex justify-center items-center h-16">
+        <Loader2 className="h-5 w-5 animate-spin text-burgundy/50 dark:text-amaranth-purple/50" />
+      </div>
+    )
   }
 
   if (isLoading) {
