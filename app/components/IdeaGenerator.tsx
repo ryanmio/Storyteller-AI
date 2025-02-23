@@ -42,6 +42,11 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
     }
   }
 
+  const handleRegenerateIdeas = () => {
+    console.log("[IdeaGenerator] Regenerate button clicked")
+    generateIdeas(true)
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-16">
@@ -61,7 +66,7 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
           Need inspiration? Try one of these ideas
         </p>
         <Button
-          onClick={generateIdeas}
+          onClick={handleRegenerateIdeas}
           variant="ghost"
           size="sm"
           disabled={isRefreshing}

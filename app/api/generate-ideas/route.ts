@@ -49,6 +49,8 @@ Please generate 4 new story titles that:
 5. Do not include any numbering or prefixes
 
 Provide your response as a simple list of 4 titles, one per line, without any additional formatting or explanation.`,
+      temperature: 0.8, // Increased temperature for more randomness
+      max_tokens: 100, // Adjust as needed
     })
 
     // Parse the generated ideas
