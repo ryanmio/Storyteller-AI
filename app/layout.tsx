@@ -11,11 +11,11 @@ export const metadata: Metadata = {
   title: "Storyteller AI",
   description:
     "Storyteller AI is an interactive web application that generates and narrates short stories using AI. Users can input a topic, and the app will create a unique story complete with audio narration.",
-  metadataBase: new URL("https://storyteller.vercel.app"),
+  metadataBase: new URL("https://storyteller-ai.app"),
   openGraph: {
     title: "Storyteller AI",
     description: "Generate and listen to AI-created short stories",
-    url: "https://storyteller.vercel.app",
+    url: "https://storyteller-ai.app",
     siteName: "Storyteller AI",
     images: [
       {
