@@ -19,9 +19,9 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
     generateIdeas()
   }, [])
 
-  const generateIdeas = async () => {
-    setIsLoading(true)
-    setIsRefreshing(true)
+  const generateIdeas = async (isRegenerating: boolean = false) => {
+    setIsLoading(!isRegenerating)
+    setIsRefreshing(isRegenerating)
     setError(null)
     try {
       const response = await fetch("/api/generate-ideas")
