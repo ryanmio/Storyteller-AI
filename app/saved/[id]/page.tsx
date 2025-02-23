@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       description,
       type: "article",
       url: `${process.env.NEXT_PUBLIC_BASE_URL}/saved/${story.id}`,
+      siteName: "Storyteller AI",
       images: [{
         url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/og?title=${encodeURIComponent(story.title)}`,
         width: 1200,
