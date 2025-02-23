@@ -1,81 +1,79 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import { supabase } from "@/lib/supabase"
-import { SavedStoryPlayer } from "@/app/components/SavedStoryPlayer"
+import type { Metadata } from "next"
+import { createClient } from "@supabase/supabase-js"
 import { Card, CardContent } from "@/components/ui/card"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { stripSSMLTags } from "@/app/utils/ssml-utils"
+import StoryPageClient from "./StoryPageClient"
 
-export default function SavedStoryPage() {
-  const params = useParams()
-  const [story, setStory] = useState<{
-    id: string
-    title: string
-    story: string
-    audio_file: string | null
-    voice_id: string | null
-  } | null>(null)
+// Initialize Supabase with service role key for server-side
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
-  useEffect(() => {
-    const fetchStory = async () => {
-      const { data, error } = await supabase.from("stories").select("*").eq("id", params.id).single()
+// Generate metadata for the page
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  // Fetch the story
+  const { data: story } = await supabase
+    .from("stories")
+    .select("*")
+    .eq("id", params.id)
+    .single()
 
-      if (error) {
-        console.error("Error fetching story:", error)
-      } else {
-        setStory(data)
-      }
-    }
-
-    fetchStory()
-  }, [params.id])
-
-  const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase.from("stories").delete().eq("id", id)
-
-      if (error) {
-        throw error
-      }
-
-      // If there's an audio file, delete it from storage
-      if (story && story.audio_file) {
-        const { error: storageError } = await supabase.storage.from("audio").remove([story.audio_file])
-
-        if (storageError) {
-          throw storageError
-        }
-      }
-
-      // Redirect to the main page after deletion
-      window.location.href = "/"
-    } catch (error) {
-      console.error("Error deleting story:", error)
-      alert("Failed to delete the story. Please try again.")
+  if (!story) {
+    return {
+      title: "Story Not Found - Storyteller AI",
+      description: "This story could not be found.",
     }
   }
+
+  // Clean the story content for the description
+  const cleanContent = stripSSMLTags(story.story)
+  const description = cleanContent.length > 200 
+    ? cleanContent.substring(0, 197) + "..."
+    : cleanContent
+
+  return {
+    title: `${story.title} - Storyteller AI`,
+    description,
+    openGraph: {
+      title: `${story.title} - Storyteller AI`,
+      description,
+      type: "article",
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/saved/${story.id}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${story.title} - Storyteller AI`,
+      description,
+    },
+  }
+}
+
+// Fetch story data
+async function getStory(id: string) {
+  const { data, error } = await supabase
+    .from("stories")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (error) {
+    console.error("Error fetching story:", error)
+    return null
+  }
+
+  return data
+}
+
+// Server Component
+export default async function SavedStoryPage({ params }: { params: { id: string } }) {
+  const story = await getStory(params.id)
 
   return (
     <div className="min-h-screen bg-lavender-blush dark:bg-licorice transition-colors duration-300 p-4 sm:p-8 md:p-12 pb-16">
       <Card className="w-full max-w-3xl mx-auto shadow-lg border-0 bg-white/80 dark:bg-black-bean/80 backdrop-blur-sm">
         <CardContent className="p-6">
-          <Link href="/?tab=saved-stories" passHref>
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to All Stories
-            </Button>
-          </Link>
-          {story ? (
-            <SavedStoryPlayer
-              story={story}
-              onClose={() => {}} // This is a no-op since we're on a dedicated page
-              onDelete={handleDelete}
-            />
-          ) : (
-            <p className="text-center text-gray-500 dark:text-gray-400">Loading story...</p>
-          )}
+          <StoryPageClient story={story} />
         </CardContent>
       </Card>
     </div>
