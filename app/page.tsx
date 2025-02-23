@@ -24,6 +24,7 @@ import { Copy } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
 import { Play, Pause } from "lucide-react"
+import { IdeaGenerator } from "./components/IdeaGenerator"
 
 const getRandomVoice = () => {
   const randomIndex = Math.floor(Math.random() * voices.length)
@@ -365,6 +366,10 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
     localStorage.setItem("hasSeenIntro", "true")
   }
 
+  const handleSelectIdea = (idea: string) => {
+    setUserInput(idea)
+  }
+
   return (
     <div className="min-h-screen bg-lavender-blush dark:bg-licorice transition-colors duration-300 p-4 sm:p-8 md:p-12 pb-16">
       <h1 className="text-4xl font-bold text-center mb-8 text-burgundy dark:text-amaranth-purple">Storyteller AI</h1>
@@ -393,7 +398,7 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
                 Saved Stories
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="new-story" className="space-y-4 mt-2">
+            <TabsContent value="new-story" className="space-y-6 mt-2">
               <div className="flex flex-col gap-4">
                 <Input
                   placeholder="Enter a topic for your story..."
@@ -445,6 +450,11 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
                   </Button>
                 </div>
               </div>
+
+              <div className="border-t border-burgundy/10 dark:border-amaranth-purple/10 pt-6">
+                <IdeaGenerator onSelectIdea={handleSelectIdea} />
+              </div>
+
               {story && (
                 <Card className="mt-8 bg-lavender-blush/50 dark:bg-black-bean/50 border border-burgundy dark:border-amaranth-purple">
                   <CardHeader className="flex flex-row items-center justify-between">
