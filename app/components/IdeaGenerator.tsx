@@ -29,23 +29,44 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
   }, [isMounted])
 
   const generateIdeas = async (isRegenerating: boolean = false) => {
+    console.log(`[IdeaGenerator] Generating ideas, isRegenerating: ${isRegenerating}`)
     if (!isMounted) return
     
-    setIsLoading(!isRegenerating)
-    setIsRefreshing(isRegenerating)
-    setError(null)
     try {
-      const response = await fetch("/api/generate-ideas")
+      if (isRegenerating) {
+        setIsRefreshing(true)
+        setIsLoading(false)
+      } else {
+        setIsLoading(true)
+        setIsRefreshing(false)
+      }
+      setError(null)
+
+      console.log('[IdeaGenerator] Fetching new ideas...')
+      const response = await fetch(`/api/generate-ideas${isRegenerating ? '?regenerate=true' : ''}`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+
       if (!response.ok) {
         throw new Error("Failed to generate ideas")
       }
+
       const data = await response.json()
-      if (data.ideas) {
+      console.log('[IdeaGenerator] Received new ideas:', data)
+
+      if (data.ideas && Array.isArray(data.ideas)) {
         setIdeas(data.ideas)
       } else if (data.message) {
         setError(data.message)
+      } else {
+        throw new Error("Invalid response format")
       }
     } catch (err) {
+      console.error('[IdeaGenerator] Error generating ideas:', err)
       setError("An error occurred while generating ideas. Please try again.")
     } finally {
       setIsLoading(false)
@@ -53,9 +74,9 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
     }
   }
 
-  const handleRegenerateIdeas = () => {
+  const handleRegenerateIdeas = async () => {
     console.log("[IdeaGenerator] Regenerate button clicked")
-    generateIdeas(true)
+    await generateIdeas(true)
   }
 
   // Don't render anything until mounted
@@ -63,7 +84,8 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
     return null
   }
 
-  if (isLoading) {
+  // Show loading state during initial load
+  if (isLoading && !isRefreshing) {
     return (
       <div className="flex justify-center items-center h-16">
         <Loader2 className="h-5 w-5 animate-spin text-burgundy/50 dark:text-amaranth-purple/50" />
@@ -72,7 +94,19 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
   }
 
   if (error) {
-    return <div className="text-center text-sm text-burgundy/70 dark:text-amaranth-purple/70">{error}</div>
+    return (
+      <div className="space-y-3">
+        <div className="text-center text-sm text-burgundy/70 dark:text-amaranth-purple/70">{error}</div>
+        <Button
+          onClick={() => generateIdeas(true)}
+          variant="ghost"
+          size="sm"
+          className="mx-auto block"
+        >
+          Try Again
+        </Button>
+      </div>
+    )
   }
 
   return (
@@ -97,26 +131,32 @@ export function IdeaGenerator({ onSelectIdea }: IdeaGeneratorProps) {
         </Button>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        {ideas.map((idea, index) => (
-          <button
-            key={index}
-            onClick={() => onSelectIdea(idea)}
-            className={cn(
-              "text-left px-3 py-2 text-sm rounded-lg",
-              "text-burgundy dark:text-amaranth-purple",
-              "border border-burgundy/20 dark:border-amaranth-purple/20",
-              "hover:bg-burgundy/5 dark:hover:bg-amaranth-purple/5",
-              "hover:border-burgundy/30 dark:hover:border-amaranth-purple/30",
-              "transition-colors duration-200",
-              "focus-visible:outline-none focus-visible:ring-2",
-              "focus-visible:ring-burgundy dark:focus-visible:ring-amaranth-purple",
-              "focus-visible:ring-offset-2 focus-visible:ring-offset-white/80",
-              "dark:focus-visible:ring-offset-black-bean/80",
-            )}
-          >
-            {idea}
-          </button>
-        ))}
+        {isRefreshing ? (
+          <div className="col-span-2 flex justify-center items-center h-16">
+            <Loader2 className="h-5 w-5 animate-spin text-burgundy/50 dark:text-amaranth-purple/50" />
+          </div>
+        ) : (
+          ideas.map((idea, index) => (
+            <button
+              key={`${idea}-${index}`}
+              onClick={() => onSelectIdea(idea)}
+              className={cn(
+                "text-left px-3 py-2 text-sm rounded-lg",
+                "text-burgundy dark:text-amaranth-purple",
+                "border border-burgundy/20 dark:border-amaranth-purple/20",
+                "hover:bg-burgundy/5 dark:hover:bg-amaranth-purple/5",
+                "hover:border-burgundy/30 dark:hover:border-amaranth-purple/30",
+                "transition-colors duration-200",
+                "focus-visible:outline-none focus-visible:ring-2",
+                "focus-visible:ring-burgundy dark:focus-visible:ring-amaranth-purple",
+                "focus-visible:ring-offset-2 focus-visible:ring-offset-white/80",
+                "dark:focus-visible:ring-offset-black-bean/80",
+              )}
+            >
+              {idea}
+            </button>
+          ))
+        )}
       </div>
     </div>
   )

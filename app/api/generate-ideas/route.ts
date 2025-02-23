@@ -10,10 +10,14 @@ let cachedIdeas: string[] | null = null
 let lastCacheTime: number | null = null
 const CACHE_DURATION = 1000 * 60 * 60 // 1 hour
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Check if we have a valid cache
-    if (cachedIdeas && lastCacheTime && Date.now() - lastCacheTime < CACHE_DURATION) {
+    // Check if this is a regeneration request
+    const { searchParams } = new URL(request.url)
+    const regenerate = searchParams.get('regenerate') === 'true'
+
+    // Only use cache for non-regeneration requests
+    if (!regenerate && cachedIdeas && lastCacheTime && Date.now() - lastCacheTime < CACHE_DURATION) {
       return NextResponse.json({ ideas: cachedIdeas })
     }
 
@@ -38,7 +42,7 @@ export async function GET() {
 
     // Generate ideas using OpenAI
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview", // Using preview as gpt-4o-mini is not yet available in the public API
+      model: "gpt-4-turbo-preview",
       messages: [
         {
           role: "system",
@@ -59,7 +63,7 @@ Generate 4 new story titles that:
 Provide exactly 4 titles, one per line, nothing else.`
         }
       ],
-      temperature: 0.8,
+      temperature: regenerate ? 0.9 : 0.8, // Higher temperature for regeneration
       max_tokens: 100
     })
 
@@ -74,9 +78,11 @@ Provide exactly 4 titles, one per line, nothing else.`
       throw new Error("Failed to generate valid ideas")
     }
 
-    // Update cache
-    cachedIdeas = ideas
-    lastCacheTime = Date.now()
+    // Only cache non-regeneration results
+    if (!regenerate) {
+      cachedIdeas = ideas
+      lastCacheTime = Date.now()
+    }
 
     return NextResponse.json({ ideas })
   } catch (error) {
