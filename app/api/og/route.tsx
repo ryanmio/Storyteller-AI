@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
             width: '1200px',
             height: '630px',
             display: 'flex',
-            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           <h1
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
               lineHeight: 1.3,
               textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
               margin: 0,
-              padding: '40px 40px 0',
+              padding: '0 40px',
               textAlign: 'center',
               fontFamily: 'Inter',
               letterSpacing: '-0.02em',
