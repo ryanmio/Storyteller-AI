@@ -21,42 +21,27 @@ export async function GET(request: NextRequest) {
       (
         <div
           style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
             backgroundImage: `url(${baseImageUrl})`,
-            backgroundColor: '#8B1538', // burgundy fallback
-            backgroundSize: '100% auto', // Changed to ensure full width and maintain aspect ratio
-            backgroundPosition: 'center 40%', // Adjust vertical position
-            backgroundRepeat: 'no-repeat',
-            position: 'relative',
-            overflow: 'hidden', // Ensure nothing bleeds out
+            width: '1200px',
+            height: '630px',
           }}
         >
           <div
             style={{
-              position: 'absolute',
-              top: '25%', // Adjusted position
-              left: '50%',
-              transform: 'translate(-50%, 0)', // Changed to not move vertically
               width: '100%',
-              padding: '0 40px',
+              paddingTop: '40px',
               textAlign: 'center',
-              maxWidth: '90%',
             }}
           >
             <h1
               style={{
-                fontSize: '56px', // Slightly smaller to ensure better fit
+                fontSize: '56px',
                 fontWeight: 'bold',
                 color: 'white',
                 lineHeight: 1.3,
                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
                 margin: 0,
-                padding: 0,
-                wordWrap: 'break-word',
+                padding: '0 40px',
               }}
             >
               {title}
