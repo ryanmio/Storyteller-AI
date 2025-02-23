@@ -2,6 +2,7 @@ import { ImageResponse } from '@vercel/og'
 import { NextRequest } from 'next/server'
 
 export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,6 +12,10 @@ export async function GET(request: NextRequest) {
     if (!title) {
       return new Response('Missing title parameter', { status: 400 })
     }
+
+    // Get the base URL from environment variable or default to localhost
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const baseImageUrl = `${baseUrl}/images/og/base.png`
 
     return new ImageResponse(
       (
@@ -22,7 +27,7 @@ export async function GET(request: NextRequest) {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            backgroundImage: 'url(https://storyteller-ai.app/images/og/base.png)',
+            backgroundImage: `url(${baseImageUrl})`,
             backgroundColor: '#8B1538', // burgundy fallback
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -30,7 +35,7 @@ export async function GET(request: NextRequest) {
         >
           <div
             style={{
-              marginTop: '15%', // Position at approximately 1/3 from the top
+              marginTop: '15%',
               display: 'flex',
               padding: '40px',
               maxWidth: '850px',
@@ -56,9 +61,10 @@ export async function GET(request: NextRequest) {
         height: 630,
       },
     )
-  } catch (e) {
-    console.log(`${e.message}`)
-    return new Response('Failed to generate the image', {
+  } catch (error: unknown) {
+    console.error('Error generating OG image:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    return new Response(`Failed to generate the image: ${errorMessage}`, {
       status: 500,
     })
   }
