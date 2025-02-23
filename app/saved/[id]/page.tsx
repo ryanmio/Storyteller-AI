@@ -77,12 +77,10 @@ export default async function SavedStoryPage({ params }: { params: { id: string 
   const story = await getStory(params.id)
 
   return (
-    <div className="min-h-screen bg-lavender-blush dark:bg-licorice transition-colors duration-300 p-4 sm:p-8 md:p-12 pb-16">
-      <Card className="w-full max-w-3xl mx-auto shadow-lg border-0 bg-white/80 dark:bg-black-bean/80 backdrop-blur-sm">
-        <CardContent className="p-6">
-          <StoryPageClient story={story} />
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-lavender-blush dark:bg-licorice p-4 sm:p-8 md:p-12 pb-16">
+      <div className="w-full max-w-3xl mx-auto">
+        <StoryPageClient story={story} />
+      </div>
     </div>
   )
 }
