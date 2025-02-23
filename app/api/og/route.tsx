@@ -26,11 +26,12 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center', // Center vertically
+            justifyContent: 'space-between', // Changed to space-between to separate title and site name
             backgroundImage: `url(${baseImageUrl})`,
             backgroundColor: '#8B1538', // burgundy fallback
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            padding: '60px 40px', // Added padding to container
           }}
         >
           <div
@@ -52,6 +53,26 @@ export async function GET(request: NextRequest) {
             >
               {title}
             </h1>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+            }}
+          >
+            <p
+              style={{
+                fontSize: '32px',
+                color: 'white',
+                opacity: 0.9,
+                fontWeight: '500',
+                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.3)',
+              }}
+            >
+              Storyteller AI
+            </p>
           </div>
         </div>
       ),
