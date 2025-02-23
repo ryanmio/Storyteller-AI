@@ -40,11 +40,18 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       description,
       type: "article",
       url: `${process.env.NEXT_PUBLIC_BASE_URL}/saved/${story.id}`,
+      images: [{
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/og?title=${encodeURIComponent(story.title)}`,
+        width: 1200,
+        height: 630,
+        alt: story.title,
+      }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${story.title} - Storyteller AI`,
       description,
+      images: [`${process.env.NEXT_PUBLIC_BASE_URL}/api/og?title=${encodeURIComponent(story.title)}`],
     },
   }
 }
