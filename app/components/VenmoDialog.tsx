@@ -28,7 +28,7 @@ export function VenmoDialog({ open, onOpenChange }: VenmoDialogProps) {
         </DialogHeader>
         <div className="flex flex-col items-center justify-center p-4">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-07%20at%203.00.08%20PM-RChggFc9Y91lF3LMNAxNbEgipLNqkt.png"
+            src="/venmo-qr.png"
             alt="Venmo QR Code for @ryanmio"
             width={300}
             height={300}
