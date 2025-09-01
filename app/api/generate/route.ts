@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import OpenAI from "openai"
+import { checkAndConsumeStory } from "@/lib/access-gate"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -16,6 +17,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
     }
 
+    const gate = await checkAndConsumeStory(undefined, req.headers)
+    if (!gate.allowed) {
+      console.warn("Access gate denied", gate)
+      const status = gate.reason === "quota_exhausted" ? 402 : 403
+      return NextResponse.json(
+        { error: gate.reason || "Access denied" },
+        { status }
+      )
+    }
+
     console.log("Starting story generation...")
     
     const completion = await openai.chat.completions.create({
@@ -30,7 +41,10 @@ export async function POST(req: Request) {
       max_tokens: 1000,
     })
 
-    return NextResponse.json({ text: completion.choices[0].message.content })
+    const res = NextResponse.json({ text: completion.choices[0].message.content })
+    // Notify client to refresh status if needed (e.g., pack remaining changed)
+    res.headers.set("x-access-changed", "1")
+    return res
   } catch (error) {
     console.error("Error generating story:", error)
     return NextResponse.json(
