@@ -18,6 +18,7 @@ import { voices } from "@/lib/voices"
 import { cn } from "@/lib/utils"
 import { WaveformPlayer } from "./components/WaveformPlayer"
 import { VenmoDialog } from "./components/VenmoDialog"
+import { AccessCodeDialog } from "./components/AccessCodeDialog"
 import { hasUsedStoryCredit, markStoryUsed, hasDonated } from "./utils/story-credits"
 import { Badge } from "@/components/ui/badge"
 import { Copy } from "lucide-react"
@@ -25,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import Link from "next/link"
 import { Play, Pause } from "lucide-react"
 import { IdeaGenerator } from "./components/IdeaGenerator"
+import { AccessStatus } from "./components/AccessStatus"
 
 const getRandomVoice = () => {
   const randomIndex = Math.floor(Math.random() * voices.length)
@@ -59,6 +61,7 @@ function PageContent() {
   const [selectedVoice, setSelectedVoice] = useState(DEFAULT_VOICE)
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "new-story")
   const [showVenmoDialog, setShowVenmoDialog] = useState(false)
+  const [showAccessCodeDialog, setShowAccessCodeDialog] = useState(false)
   const [showCopiedTooltip, setShowCopiedTooltip] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [showIntroHint, setShowIntroHint] = useState(false)
@@ -191,10 +194,18 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
       })
 
       if (!response.ok) {
+        if (response.status === 403 || response.status === 402) {
+          // Trigger access code dialog and bail
+          setShowAccessCodeDialog(true)
+          throw new Error(`Failed to generate story: ${response.statusText}`)
+        }
         throw new Error(`Failed to generate story: ${response.statusText}`)
       }
 
       const { text } = await response.json()
+      if (response.headers.get("x-access-changed") === "1") {
+        window.dispatchEvent(new Event("access:changed"))
+      }
 
       // Extract the story content from within the <story> tags
       const storyContent = text.match(/<story>([\s\S]*)<\/story>/)?.[1]?.trim() || text
@@ -384,7 +395,10 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
 
   return (
     <div className="min-h-screen bg-lavender-blush dark:bg-licorice transition-colors duration-300 p-4 sm:p-8 md:p-12 pb-16">
-      <h1 className="text-4xl font-bold text-center mb-8 text-burgundy dark:text-amaranth-purple">Storyteller AI</h1>
+      <h1 className="text-4xl font-bold text-center mb-2 text-burgundy dark:text-amaranth-purple">Storyteller AI</h1>
+      <div className="w-full flex justify-center mb-6">
+        <AccessStatus />
+      </div>
       <Card className="w-full max-w-3xl mx-auto shadow-lg border-0 bg-white/80 dark:bg-black-bean/80 backdrop-blur-sm">
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -574,6 +588,14 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
         </a>
       </footer>
       <VenmoDialog open={showVenmoDialog} onOpenChange={setShowVenmoDialog} />
+      <AccessCodeDialog
+        open={showAccessCodeDialog}
+        onOpenChange={setShowAccessCodeDialog}
+        onRedeemed={() => {
+          // After successful redemption, auto-retry generation once
+          generateAndSaveStory()
+        }}
+      />
       <audio ref={introAudioRef} onEnded={() => setIsIntroPlaying(false)} />
       {showIntroHint && (
         <div className="fixed bottom-4 right-4 w-64 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
