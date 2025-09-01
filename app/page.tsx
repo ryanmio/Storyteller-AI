@@ -67,6 +67,7 @@ function PageContent() {
   const [showIntroHint, setShowIntroHint] = useState(false)
   const [isIntroPlaying, setIsIntroPlaying] = useState(false)
   const introAudioRef = useRef<HTMLAudioElement | null>(null)
+  const redeemRetryCountRef = useRef<number>(0)
 
   useEffect(() => {
     setSelectedVoice(getRandomVoice())
@@ -121,6 +122,8 @@ function PageContent() {
   }
 
   const generateAndSaveStory = async () => {
+    // Prevent concurrent generations
+    if (isGenerating) return
     // Check if user has already used their free story credit
     if (hasUsedStoryCredit() && !hasDonated()) {
       setShowVenmoDialog(true)
@@ -269,6 +272,8 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
 
       // Mark the story credit as used after successful generation
       markStoryUsed()
+      // Reset auto-retry counter on success
+      redeemRetryCountRef.current = 0
     } catch (error) {
       console.error("Error generating and saving story:", error)
       setAudioError("An error occurred while creating your story. Please try again.")
@@ -592,8 +597,11 @@ Do not include planning notes or explanations. Offer a single cohesive, creative
         open={showAccessCodeDialog}
         onOpenChange={setShowAccessCodeDialog}
         onRedeemed={() => {
-          // After successful redemption, auto-retry generation once
-          generateAndSaveStory()
+          // After successful redemption, auto-retry generation once (guarded)
+          if (!isGenerating && redeemRetryCountRef.current === 0) {
+            redeemRetryCountRef.current = 1
+            generateAndSaveStory()
+          }
         }}
       />
       <audio ref={introAudioRef} onEnded={() => setIsIntroPlaying(false)} />
