@@ -14,30 +14,33 @@ export async function GET() {
         .maybeSingle(),
       supabaseAdmin
         .from("device_grants")
-        .select("id, revoked, pack_remaining, period_start, period_end, used_in_period, access_codes(status, type, pack_uses, monthly_quota)")
+        .select("id, created_at, revoked, pack_remaining, period_start, period_end, used_in_period, access_codes(status, type, pack_uses, monthly_quota)")
         .eq("device_id", deviceId)
         .eq("revoked", false),
     ])
 
     const freeUsed = !!deviceRow?.free_used
-    // Prefer the active grant with the most remaining quota
+    // Prefer the active grant with the most remaining quota, tie-break by created_at (oldest first)
     const candidates = (grantRows || []).filter((g: any) => g.access_codes?.status === "active") as any[]
-    let best: any | null = null
-    let bestScore = -1
-    for (const g of candidates) {
-      const type = g.access_codes?.type
-      let remaining = 0
-      if (type === "pack") {
-        remaining = Number(g.pack_remaining ?? 0)
-      } else if (type === "monthly") {
-        remaining = Math.max(0, Number(g.access_codes?.monthly_quota ?? 0) - Number(g.used_in_period ?? 0))
-      }
-      const score = remaining * 1000 - new Date(g.created_at ?? 0).getTime() % 1000
-      if (score > bestScore) {
-        best = g
-        bestScore = score
-      }
-    }
+    candidates.sort((a: any, b: any) => {
+      const typeA = a.access_codes?.type
+      const typeB = b.access_codes?.type
+      const remainingA = typeA === "pack"
+        ? Number(a.pack_remaining ?? 0)
+        : typeA === "monthly"
+          ? Math.max(0, Number(a.access_codes?.monthly_quota ?? 0) - Number(a.used_in_period ?? 0))
+          : 0
+      const remainingB = typeB === "pack"
+        ? Number(b.pack_remaining ?? 0)
+        : typeB === "monthly"
+          ? Math.max(0, Number(b.access_codes?.monthly_quota ?? 0) - Number(b.used_in_period ?? 0))
+          : 0
+      if (remainingA !== remainingB) return remainingB - remainingA
+      const tA = new Date(a.created_at ?? 0).getTime()
+      const tB = new Date(b.created_at ?? 0).getTime()
+      return tA - tB
+    })
+    const best: any | null = candidates[0] ?? null
 
     const hasGrant = !!best
     const grant = best
