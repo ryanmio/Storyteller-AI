@@ -45,6 +45,7 @@ export function AccessStatus() {
     return () => {
       alive = false
       window.removeEventListener("access:changed", onChanged)
+      document.removeEventListener("visibilitychange", onChanged)
     }
   }, [])
 
