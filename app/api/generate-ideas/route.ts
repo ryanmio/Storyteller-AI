@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
     // Generate ideas using OpenAI
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-5-mini-2025-08-07",
       messages: [
         {
           role: "system",

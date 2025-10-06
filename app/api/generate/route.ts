@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     console.log("Starting story generation...")
     
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-5-2025-08-07",
       messages: [
         {
           role: "system",
